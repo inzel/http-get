@@ -2,20 +2,29 @@
 from scapy.all import *
 
 # VARIABLES
+
+# Source IP
 src = sys.argv[1]
+# Destination IP
 dst = sys.argv[2]
+# Source port randomized integer from 1024-65535
 sport = random.randint(1024,65535)
+# Destination port
 dport = int(sys.argv[3])
 
-# SYN
+# Build SYN Packet
 ip=IP(src=src,dst=dst)
+# MSS is set to 0 for a use case. This should be changed for future uses...
 SYN=TCP(sport=sport,dport=dport,flags='S',seq=1000,options=[('MSS',0)])
+  
+# SYN/ACK packet
 SYNACK=sr1(ip/SYN)
 
 # ACK
 ACK=TCP(sport=sport, dport=dport, flags='A', seq=SYNACK.ack, ack=SYNACK.seq + 1)
 send(ip/ACK)
 
+# HTTP GET request
 getStr = 'GET / HTTP/1.1\r\nHost: ' + dst + '\r\n\r\n'
 
 request = ip/ACK/getStr
